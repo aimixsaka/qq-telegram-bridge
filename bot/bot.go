@@ -24,10 +24,13 @@ var QQClient *Bot
 func Init(logger *utils.ProtocolLogger) {
 	appInfo := auth.AppList["linux"]["3.2.15-30366"]
 	//qqClientInstance := client.NewClient(config.GlobalConfig.Bot.Account, appInfo, "https://sign.lagrangecore.org/api/sign/25765")
-	qqClientInstance := client.NewClient(config.GlobalConfig.Bot.Account, config.GlobalConfig.Bot.Password)
+	qqClientInstance := client.NewClient(
+		config.GlobalConfig.QQBot.Account,
+		config.GlobalConfig.QQBot.Password,
+	)
 	qqClientInstance.SetLogger(logger)
 	qqClientInstance.UseVersion(appInfo)
-	qqClientInstance.AddSignServer(config.GlobalConfig.Bot.SignServer)
+	qqClientInstance.AddSignServer(config.GlobalConfig.QQBot.SignServer)
 	qqClientInstance.UseDevice(auth.NewDeviceInfo(114514))
 
 	data, err := os.ReadFile("sig.bin")
@@ -102,9 +105,11 @@ func Login() error {
 
 // 监听状态
 func Listen() {
-	QQClient.DisconnectedEvent.Subscribe(func(client *client.QQClient, event *client.DisconnectedEvent) {
-		logrus.Infof("连接已断开：%v", event.Message)
-	})
+	QQClient.DisconnectedEvent.Subscribe(
+		func(client *client.QQClient, event *client.DisconnectedEvent) {
+			logrus.Infof("连接已断开：%v", event.Message)
+		},
+	)
 }
 
 // 保存sign

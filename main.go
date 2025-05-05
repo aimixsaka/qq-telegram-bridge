@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/ExquisiteCore/LagrangeGo-Template/bot"
+	qqbot "github.com/ExquisiteCore/LagrangeGo-Template/bot"
 	"github.com/ExquisiteCore/LagrangeGo-Template/config"
 	"github.com/ExquisiteCore/LagrangeGo-Template/logic"
 	"github.com/ExquisiteCore/LagrangeGo-Template/utils"
+	tgbot "github.com/go-telegram/bot"
+	"github.com/sirupsen/logrus"
 )
 
 // 创建 protocolLogger 实例
@@ -17,22 +20,31 @@ var logger = utils.ProtocolLogger{}
 func init() {
 	config.Init()
 	utils.Init()
-	bot.Init(&logger)
+	qqbot.Init(&logger)
 }
 
 func main() {
 
-	bot.Login()
+	// QQ Login
+	qqbot.Login()
+	qqbot.Listen()
 
-	bot.Listen()
+	// TG Login
+	b, err := tgbot.New(
+		config.GlobalConfig.TGBot.Token,
+		tgbot.WithDefaultHandler(logic.TGSetUpHandler),
+	)
+	if err != nil {
+		logrus.Errorf("Telegram bot login failed: %s\n", err)
+		return
+	}
 
-	logic.RegisterCustomLogic()
-
+	logic.RegisterCustomLogic(b)
 	logic.SetupLogic()
+	defer qqbot.QQClient.Release()
+	defer qqbot.Dumpsig()
 
-	defer bot.QQClient.Release()
-
-	defer bot.Dumpsig()
+	b.Start(context.TODO())
 
 	// setup the main stop channel
 	mc := make(chan os.Signal, 2)

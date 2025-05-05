@@ -1,0 +1,18 @@
+[qqbot]
+# QQBot账号 必填
+account = 11111111111
+# SignServer 必填
+signServer = "https://sign.lagrangecore.org/api/sign/30366"
+
+[tgbot]
+token = "aaaaaaaaaaa"
+
+[groups.main]
+# qq group number
+qq = 111111111
+# telegram group number
+tg = -111111111
+
+[groups.ot]
+qq = 11
+tg = -11
